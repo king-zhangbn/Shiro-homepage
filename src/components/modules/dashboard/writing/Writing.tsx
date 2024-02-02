@@ -4,6 +4,16 @@ import { atom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import type { FC } from 'react'
 import type { MilkdownRef } from '../editor'
 
+import { redoCommand, undoCommand } from '@milkdown/plugin-history'
+import {
+  toggleEmphasisCommand,
+  toggleStrongCommand,
+  wrapInBulletListCommand,
+  wrapInHeadingCommand,
+  wrapInOrderedListCommand,
+} from '@milkdown/preset-commonmark'
+import { callCommand } from '@milkdown/utils'
+
 import { useEventCallback } from '~/hooks/common/use-event-callback'
 import { clsxm } from '~/lib/helper'
 import { jotaiStore } from '~/lib/store'
@@ -31,8 +41,72 @@ export const Writing: FC<{
         </div>
       )}
 
+      <MenuBar />
       <Editor />
     </>
+  )
+}
+
+const MenuBar = () => {
+  const editorRef = useEditorRef()
+
+  const menuList = [
+    {
+      icon: 'icon-[material-symbols--undo]',
+      action: () => editorRef?.getAction(callCommand(undoCommand.key)),
+    },
+    {
+      icon: 'icon-[material-symbols--redo]',
+      action: () => editorRef?.getAction(callCommand(redoCommand.key)),
+    },
+    {
+      icon: 'icon-[mingcute--bold-fill]',
+      action: () => editorRef?.getAction(callCommand(toggleStrongCommand.key)),
+    },
+    {
+      icon: 'icon-[mingcute--italic-fill]',
+      action: () =>
+        editorRef?.getAction(callCommand(toggleEmphasisCommand.key)),
+    },
+    {
+      icon: 'icon-[mingcute--list-check-fill]',
+      action: () =>
+        editorRef?.getAction(callCommand(wrapInBulletListCommand.key)),
+    },
+    {
+      icon: 'icon-[material-symbols--format-list-numbered-rounded]',
+      action: () =>
+        editorRef?.getAction(callCommand(wrapInOrderedListCommand.key)),
+    },
+    {
+      icon: 'icon-[material-symbols--format-h1]',
+      action: () =>
+        editorRef?.getAction(callCommand(wrapInHeadingCommand.key, 1)),
+    },
+    {
+      icon: 'icon-[material-symbols--format-h2]',
+      action: () =>
+        editorRef?.getAction(callCommand(wrapInHeadingCommand.key, 2)),
+    },
+    {
+      icon: 'icon-[material-symbols--format-h3]',
+      action: () =>
+        editorRef?.getAction(callCommand(wrapInHeadingCommand.key, 3)),
+    },
+  ]
+
+  return (
+    <div className="my-2 flex w-full flex-wrap space-x-2">
+      {menuList.map((menu, key) => (
+        <button
+          key={key}
+          className="flex items-center justify-center rounded p-2 text-xl text-gray-500 hover:bg-gray-300 hover:text-black"
+          onClick={menu.action}
+        >
+          <i className={menu.icon} />
+        </button>
+      ))}
+    </div>
   )
 }
 
